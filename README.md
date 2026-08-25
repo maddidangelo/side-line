@@ -1,4 +1,4 @@
-# Side Line
+# Sideline
 ### A plain-language betting literacy tool for people new to sports betting
 
 ## The problem
@@ -24,8 +24,10 @@ A virtual bankroll ($500 in practice dollars, no real money or signup) that lets
 - A **win rate vs. break-even rate** comparison, so users can see for themselves whether they're actually clearing the bar their odds required
 - No streaks, no leaderboard, no push notifications, no framing of any outcome as a "win" worth repeating — the goal is to make the long-run math visible, not to make betting feel exciting
 
-**5. (Planned) Historical Pattern Explorer**
-Lets users query historical odds data for patterns — e.g., "how often do home underdogs of this size actually win?" — framed explicitly as education about *past* frequency, not a prediction of future outcomes.
+**5. Historical Pattern Explorer**
+Built from [Kaggle's NFL scores and betting data](https://www.kaggle.com/datasets/tobycrabtree/nfl-scores-and-betting-data) — 14,171 NFL games with a posted spread, 1966–2025. Cleaned and analyzed with pandas to show how often favorites actually won outright versus covered the spread, broken out by spread size, home/away, and regular season vs. playoffs.
+
+The headline finding, and the core teaching moment of this tab: **favorite win rate climbs steadily as the spread gets bigger (55% for small favorites up to 87% for heavy favorites), but the cover rate barely moves — it sits around 47–48% almost everywhere, and actually dips slightly for the biggest favorites.** That's the sportsbook doing its job: the bigger the favorite, the bigger the spread, specifically calibrated so covering it stays close to a coin flip either way. This is presented as a historical record, with explicit language that past frequency doesn't predict a specific future outcome.
 
 ## Design principles
 
@@ -34,6 +36,16 @@ Lets users query historical odds data for patterns — e.g., "how often do home 
 - **Grounded in real data**, not abstract examples — using live and historical odds makes the math concrete instead of theoretical.
 - **Safe gambling is a visible, non-judgmental part of the design**, not a legal disclaimer buried in fine print. The National Council on Problem Gambling helpline (1-800-522-4700) is surfaced directly in the interface.
 - **Practice betting is designed to teach, not to feel exciting.** Paper-trading tools work well for stocks, but betting is designed to feel thrilling regardless of long-run math — so the practice mode deliberately avoids streaks, leaderboards, and win-framing, and instead keeps the vig cost and break-even comparison visible on every bet, so the lesson (the math, not the feeling) stays front and center.
+
+## How the historical analysis was built
+
+`analyze_nfl_spreads.py` handles cleaning and analysis:
+- Maps every historical franchise name in the dataset (e.g. Houston Oilers, Los Angeles Raiders, St. Louis Rams) to the single current abbreviation the dataset already uses for that franchise, so relocations/renames don't fragment the data
+- Drops games with no posted spread or missing scores (mostly early-era gaps and pick'em games)
+- Determines whether the favorite was the home or away team, then computes whether they won outright and whether they covered the spread
+- Aggregates into spread-size buckets, home/away splits, and regular season vs. playoff splits
+
+The output is a small JSON summary (not the row-level data) embedded directly in `index.html`, so the Historical Pattern Explorer tab loads instantly with no backend or API calls required for the demo.
 
 ## Tech stack
 
@@ -48,14 +60,16 @@ Lets users query historical odds data for patterns — e.g., "how often do home 
 
 | File | Purpose |
 |---|---|
-| `odds-literacy-tool.html` | Working prototype — odds translator, vig revealer, parlay checker |
+| `index.html` | Working prototype — odds translator, vig revealer, parlay checker, practice betting, historical patterns |
 | `prediction_market_vs_sportsbook.py` | Script pulling and comparing sportsbook odds vs. Polymarket prices |
+| `analyze_nfl_spreads.py` | Cleans the Kaggle NFL odds dataset and computes the historical pattern statistics used in the tool |
 | `README.md` | This file |
 
 ## Roadmap
 
 - [x] Build a practice betting mode with virtual currency and vig tracking
-- [ ] Connect the Historical Pattern Explorer to real Kaggle data
+- [x] Connect the Historical Pattern Explorer to real Kaggle data (NFL, 1966–2025)
+- [ ] Extend the Historical Pattern Explorer to NBA data
 - [ ] Add a Brier score comparison between sportsbook and prediction market accuracy
 - [ ] Build a simple, non-judgmental spending check-in feature
 - [ ] Port to Streamlit or a lightweight Python backend for live data
