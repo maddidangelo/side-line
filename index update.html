@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Side-Line — Understand the Bet Before You Make It</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1E2A24;
+    --canvas: #EEF1EA;
+    --card: #FBFCF9;
+    --pine: #2B4A40;
+    --pine-dark: #1C332B;
+    --ochre: #C98A2E;
+    --ochre-light: #F2E3C6;
+    --brick: #A8402F;
+    --brick-light: #F3DCD6;
+    --mist: #7C8B82;
+    --line: #D6DCD2;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--canvas);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 760px; margin: 0 auto; padding: 48px 24px 80px; }
+
+  header { margin-bottom: 40px; }
+
+  .eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--pine);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 18px;
+    height: 2px;
+    background: var(--ochre);
+    display: inline-block;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: clamp(32px, 5vw, 44px);
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    color: var(--pine-dark);
+    margin-bottom: 16px;
+  }
+
+  .sub {
+    font-size: 16px;
+    color: var(--mist);
+    max-width: 52ch;
+  }
+
+  nav.tabs {
+    display: flex;
+    gap: 4px;
+    margin: 36px 0 28px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .tab-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    background: none;
+    border: none;
+    padding: 12px 4px;
+    margin-right: 24px;
+    color: var(--mist);
+    cursor: pointer;
+    position: relative;
+    top: 1px;
+  }
+  .tab-btn.active {
+    color: var(--pine-dark);
+    border-bottom: 2px solid var(--ochre);
+  }
+  .tab-btn:hover:not(.active) { color: var(--ink); }
+
+  .panel { display: none; }
+  .panel.active { display: block; animation: fade 0.25s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 28px;
+    margin-bottom: 20px;
+  }
+
+  .card h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 22px;
+    color: var(--pine-dark);
+    margin-bottom: 6px;
+  }
+
+  .card .desc { color: var(--mist); font-size: 14px; margin-bottom: 22px; }
+
+  label {
+    display: block;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--mist);
+    margin-bottom: 6px;
+  }
+
+  input[type="text"], input[type="number"] {
+    width: 100%;
+    font-family: 'Space Mono', monospace;
+    font-size: 16px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    background: var(--canvas);
+    color: var(--ink);
+  }
+  input:focus { outline: 2px solid var(--pine); outline-offset: 1px; }
+
+  .row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+  .row > div { flex: 1; min-width: 140px; }
+
+  button.action {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.03em;
+    background: var(--pine);
+    color: var(--card);
+    border: none;
+    padding: 11px 20px;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  button.action:hover { background: var(--pine-dark); }
+
+  .result {
+    margin-top: 22px;
+    padding-top: 22px;
+    border-top: 1px dashed var(--line);
+  }
+
+  .big-stat {
+    font-family: 'Fraunces', serif;
+    font-size: 40px;
+    color: var(--pine-dark);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .big-stat span { font-size: 18px; color: var(--mist); font-family: 'Inter', sans-serif; }
+
+  .plain {
+    font-size: 15px;
+    line-height: 1.6;
+    margin-top: 14px;
+    max-width: 56ch;
+  }
+  .plain strong { color: var(--pine-dark); }
+
+  /* Vig meter */
+  .vig-meter {
+    margin-top: 20px;
+  }
+  .vig-track {
+    display: flex;
+    width: 100%;
+    height: 40px;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+  }
+  .vig-seg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--card);
+    white-space: nowrap;
+  }
+  .seg-a { background: var(--pine); }
+  .seg-b { background: var(--pine-dark); }
+  .seg-vig { background: var(--ochre); color: var(--pine-dark); font-weight: 700; }
+
+  .vig-labels { display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: var(--mist); font-family: 'Space Mono', monospace; }
+
+  /* Parlay staircase */
+  .staircase { margin-top: 24px; }
+  .stair-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .stair-label { width: 130px; font-family: 'Space Mono', monospace; font-size: 12px; color: var(--mist); flex-shrink: 0; }
+  .stair-bar-bg { flex: 1; background: var(--line); border-radius: 3px; height: 22px; overflow: hidden; }
+  .stair-bar { height: 100%; background: var(--pine); border-radius: 3px; transition: width 0.4s ease; }
+  .stair-bar.final { background: var(--brick); }
+  .stair-val { width: 56px; text-align: right; font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; color: var(--pine-dark); }
+
+  .leg-input { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+  .leg-input input { flex: 1; }
+  .remove-leg { background: none; border: none; color: var(--brick); cursor: pointer; font-family: 'Space Mono', monospace; font-size: 13px; }
+  .add-leg { font-family: 'Space Mono', monospace; font-size: 12px; background: none; border: 1px dashed var(--mist); color: var(--mist); padding: 8px 14px; border-radius: 3px; cursor: pointer; margin-bottom: 18px; }
+  .add-leg:hover { border-color: var(--pine); color: var(--pine); }
+
+  .callout {
+    background: var(--ochre-light);
+    border-left: 3px solid var(--ochre);
+    padding: 14px 16px;
+    font-size: 14px;
+    border-radius: 0 3px 3px 0;
+    margin-top: 18px;
+  }
+
+  footer {
+    margin-top: 56px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+  }
+  .footer-note {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    background: var(--brick-light);
+    border-left: 3px solid var(--brick);
+    padding: 16px 18px;
+    border-radius: 0 3px 3px 0;
+    font-size: 13.5px;
+    color: var(--ink);
+  }
+  .footer-note strong { color: var(--brick); }
+
+  /* Practice betting */
+  .bankroll-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--pine-dark);
+    color: var(--card);
+    padding: 16px 20px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .bankroll-stat { text-align: left; }
+  .bankroll-stat .label { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.7; }
+  .bankroll-stat .value { font-family: 'Fraunces', serif; font-size: 22px; line-height: 1.2; }
+  .bankroll-stat .value.neg { color: #E8A798; }
+  .bankroll-stat .value.pos { color: #A9D9BF; }
+
+  .practice-game {
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 16px;
+    margin-bottom: 12px;
+    background: var(--canvas);
+  }
+  .practice-game .matchup {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--pine-dark);
+    margin-bottom: 10px;
+  }
+  .practice-side {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    margin-bottom: 6px;
+    background: var(--card);
+  }
+  .practice-side .odds-tag { font-family: 'Space Mono', monospace; font-size: 12px; color: var(--mist); }
+  .stake-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    background: var(--pine);
+    color: var(--card);
+    border: none;
+    padding: 6px 12px;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  .stake-btn:hover { background: var(--pine-dark); }
+  .stake-btn:disabled { background: var(--line); color: var(--mist); cursor: not-allowed; }
+
+  .bet-history { margin-top: 10px; }
+  .bet-row {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--line);
+  }
+  .bet-row .win { color: var(--pine); font-weight: 700; }
+  .bet-row .lose { color: var(--brick); font-weight: 700; }
+  .bet-row .pending { color: var(--ochre); }
+
+  .reset-link {
+    background: none;
+    border: none;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--mist);
+    text-decoration: underline;
+    cursor: pointer;
+    margin-top: 16px;
+  }
+
+  /* Historical patterns */
+  .source-note {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--mist);
+    margin-bottom: 20px;
+  }
+
+  .hist-summary {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .hist-summary-stat {
+    flex: 1;
+    min-width: 130px;
+    background: var(--canvas);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 14px 16px;
+  }
+  .hist-summary-stat .label { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--mist); margin-bottom: 4px; }
+  .hist-summary-stat .value { font-family: 'Fraunces', serif; font-size: 26px; color: var(--pine-dark); }
+
+  .hist-group-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--pine);
+    margin: 22px 0 12px;
+  }
+
+  .hist-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .hist-row-label { width: 190px; font-size: 13px; color: var(--ink); flex-shrink: 0; }
+  .hist-bars { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+  .hist-bar-line { display: flex; align-items: center; gap: 8px; }
+  .hist-bar-bg { flex: 1; background: var(--line); border-radius: 3px; height: 16px; overflow: hidden; }
+  .hist-bar-fill { height: 100%; border-radius: 3px; }
+  .hist-bar-fill.win { background: var(--pine); }
+  .hist-bar-fill.cover { background: var(--ochre); }
+  .hist-bar-val { width: 46px; font-family: 'Space Mono', monospace; font-size: 12px; text-align: right; color: var(--pine-dark); flex-shrink: 0; }
+  .hist-n { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--mist); width: 70px; flex-shrink: 0; }
+
+  .hist-legend {
+    display: flex;
+    gap: 18px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--mist);
+    margin-bottom: 4px;
+  }
+  .hist-legend span { display: flex; align-items: center; gap: 6px; }
+  .hist-legend .dot { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
+  .dot.win { background: var(--pine); }
+  .dot.cover { background: var(--ochre); }
+
+  @media (max-width: 480px) {
+    .stair-label { width: 90px; font-size: 11px; }
+    .hist-row { flex-direction: column; align-items: flex-start; }
+    .hist-row-label { width: auto; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">A plain-language guide to sports betting math</div>
+    <h1>Side-Line</h1>
+    <p class="sub">Odds are written to sound like tips. They're actually just math — and once you can read it, nobody can talk you into a bad number. Built for people picking this up for the first time.</p>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="translate">01 — Translate odds</button>
+    <button class="tab-btn" data-tab="vig">02 — Find the vig</button>
+    <button class="tab-btn" data-tab="parlay">03 — Parlay reality check</button>
+    <button class="tab-btn" data-tab="practice">04 — Practice betting</button>
+    <button class="tab-btn" data-tab="history">05 — Historical patterns</button>
+  </nav>
+
+  <!-- TAB 1: TRANSLATOR -->
+  <section class="panel active" id="translate">
+    <div class="card">
+      <h2>What does −150 actually mean?</h2>
+      <p class="desc">Enter American odds (the number you'll see on any sportsbook) to see the implied probability and what you'd need to win to break even.</p>
+
+      <label for="odds-input">American odds</label>
+      <input type="text" id="odds-input" placeholder="e.g. -150 or +200" value="-150">
+
+      <div style="margin-top:16px;">
+        <button class="action" onclick="translateOdds()">Translate</button>
+      </div>
+
+      <div class="result" id="translate-result"></div>
+    </div>
+  </section>
+
+  <!-- TAB 2: VIG REVEALER -->
+  <section class="panel" id="vig">
+    <div class="card">
+      <h2>The hidden cut</h2>
+      <p class="desc">Sportsbooks price both sides of a bet so that the probabilities add up to more than 100%. That extra bit is the "vig" — the house's built-in profit margin. Enter both sides of a real matchup to see it.</p>
+
+      <div class="row">
+        <div>
+          <label>Team A odds</label>
+          <input type="text" id="vig-a" placeholder="e.g. -140" value="-140">
+        </div>
+        <div>
+          <label>Team B odds</label>
+          <input type="text" id="vig-b" placeholder="e.g. +120" value="+120">
+        </div>
+      </div>
+
+      <button class="action" onclick="revealVig()">Reveal the vig</button>
+
+      <div class="result" id="vig-result"></div>
+    </div>
+  </section>
+
+  <!-- TAB 3: PARLAY -->
+  <section class="panel" id="parlay">
+    <div class="card">
+      <h2>Why parlays feel better than they are</h2>
+      <p class="desc">Stack a few "likely" bets into a parlay and your odds of winning the whole thing drop faster than most people expect. Add legs to watch it happen.</p>
+
+      <div id="leg-inputs"></div>
+      <button class="add-leg" onclick="addLeg()">+ Add another leg</button>
+
+      <div>
+        <button class="action" onclick="checkParlay()">Check the parlay</button>
+      </div>
+
+      <div class="result" id="parlay-result"></div>
+    </div>
+  </section>
+
+  <!-- TAB 4: PRACTICE BETTING -->
+  <section class="panel" id="practice">
+    <div class="card">
+      <h2>Try it with no money on the line</h2>
+      <p class="desc">Practice with virtual dollars on real odds. No signup, no real money, no risk — this is here so you can watch how the math plays out over time, not to feel like a win.</p>
+
+      <div class="bankroll-bar">
+        <div class="bankroll-stat">
+          <div class="label">Practice balance</div>
+          <div class="value" id="balance-display">$500.00</div>
+        </div>
+        <div class="bankroll-stat">
+          <div class="label">Vig paid so far</div>
+          <div class="value neg" id="vig-paid-display">$0.00</div>
+        </div>
+        <div class="bankroll-stat">
+          <div class="label">Your win rate</div>
+          <div class="value" id="winrate-display">—</div>
+        </div>
+      </div>
+
+      <div id="practice-games"></div>
+
+      <div class="bet-history" id="bet-history"></div>
+
+      <button class="reset-link" onclick="resetPractice()">Reset practice account</button>
+    </div>
+  </section>
+
+  <!-- TAB 5: HISTORICAL PATTERNS -->
+  <section class="panel" id="history">
+    <div class="card">
+      <h2>What actually happened, historically</h2>
+      <p class="desc">Real NFL spreads and outcomes, 1966–2025. This is a record of the past — not a prediction of what happens in your next bet. Favorites winning more often as the spread grows doesn't mean betting on them pays off; watch what happens to the <em>cover</em> rate instead.</p>
+      <div class="source-note" id="hist-source"></div>
+
+      <div class="hist-summary" id="hist-summary"></div>
+
+      <div class="hist-legend">
+        <span><span class="dot win"></span> Won outright</span>
+        <span><span class="dot cover"></span> Covered the spread</span>
+      </div>
+
+      <div class="hist-group-label">By spread size</div>
+      <div id="hist-by-spread"></div>
+
+      <div class="hist-group-label">Home vs. away favorites</div>
+      <div id="hist-by-location"></div>
+
+      <div class="hist-group-label">Regular season vs. playoffs</div>
+      <div id="hist-by-season"></div>
+
+      <div class="callout">
+        Notice that the <strong>win rate</strong> climbs steadily as favorites get bigger, but the <strong>cover rate</strong> barely moves — it hovers right around 47–48% almost everywhere. That's the sportsbook doing its job: the bigger the favorite, the bigger the spread, specifically so that covering it stays close to a coin flip either way.
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-note">
+      <span>♥</span>
+      <div>
+        <strong>This tool doesn't tell you what to bet.</strong> It's here so the numbers make sense before you decide anything. If betting stops feeling optional, or you're chasing losses, the National Council on Problem Gambling helpline is free and confidential: <strong>1-800-522-4700</strong>.
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  // ---------- Tab switching ----------
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // ---------- Core math ----------
+  function americanToImplied(odds) {
+    const n = parseFloat(odds);
+    if (isNaN(n)) return null;
+    if (n > 0) return 100 / (n + 100);
+    return -n / (-n + 100);
+  }
+
+  function pct(x) { return (x * 100).toFixed(1) + '%'; }
+
+  // ---------- Tab 1: Translator ----------
+  function translateOdds() {
+    const raw = document.getElementById('odds-input').value.trim();
+    const prob = americanToImplied(raw);
+    const box = document.getElementById('translate-result');
+
+    if (prob === null) {
+      box.innerHTML = `<p class="plain">That doesn't look like valid American odds. Try something like <strong>-150</strong> or <strong>+200</strong>.</p>`;
+      return;
+    }
+
+    const breakEven = (1 / prob * 100).toFixed(0);
+    const isFavorite = raw.trim().startsWith('-');
+
+    box.innerHTML = `
+      <div class="big-stat">${pct(prob)} <span>implied probability</span></div>
+      <p class="plain">
+        The sportsbook is pricing this as roughly a <strong>${pct(prob)}</strong> chance of happening.
+        ${isFavorite
+          ? `Because this is the favorite, you'd risk more to win less — you're paying for the safer bet.`
+          : `Because this is the underdog, a smaller bet pays out more if it hits — but it's expected to lose more often than it wins.`}
+      </p>
+      <p class="plain">
+        If you made this exact bet over and over, you'd need to win it about <strong>${breakEven} out of every 100 times</strong> just to break even — not to profit, just to come out even.
+      </p>
+    `;
+  }
+
+  // ---------- Tab 2: Vig ----------
+  function revealVig() {
+    const a = americanToImplied(document.getElementById('vig-a').value);
+    const b = americanToImplied(document.getElementById('vig-b').value);
+    const box = document.getElementById('vig-result');
+
+    if (a === null || b === null) {
+      box.innerHTML = `<p class="plain">Enter valid odds for both sides, e.g. -140 and +120.</p>`;
+      return;
+    }
+
+    const total = a + b;
+    const vig = total - 1;
+    const aShare = (a / total) * 100;
+    const bShare = (b / total) * 100;
+    const vigShare = Math.max(vig, 0) / total * 100;
+
+    box.innerHTML = `
+      <div class="vig-meter">
+        <div class="vig-track">
+          <div class="vig-seg seg-a" style="width:${aShare}%">${pct(a)}</div>
+          <div class="vig-seg seg-b" style="width:${bShare}%">${pct(b)}</div>
+        </div>
+        <div class="vig-labels"><span>Team A</span><span>Team B</span></div>
+      </div>
+      <p class="plain">
+        Add up both implied probabilities and you get <strong>${pct(total)}</strong> — not 100%.
+        That extra <strong>${pct(Math.max(vig,0))}</strong> is the vig: built-in margin that guarantees the sportsbook profits no matter who wins, as long as betting is roughly balanced on both sides.
+      </p>
+      <div class="callout">
+        This is why "just bet on the more likely team" isn't a strategy — the price is already adjusted so the book wins on average either way.
+      </div>
+    `;
+  }
+
+  // ---------- Tab 3: Parlay ----------
+  let legCount = 0;
+
+  function addLeg(defaultVal) {
+    legCount++;
+    const container = document.getElementById('leg-inputs');
+    const div = document.createElement('div');
+    div.className = 'leg-input';
+    div.id = 'leg-' + legCount;
+    div.innerHTML = `
+      <label style="margin:0; width:60px;">Leg ${legCount}</label>
+      <input type="text" placeholder="e.g. -180" value="${defaultVal || ''}">
+      ${legCount > 2 ? `<button class="remove-leg" onclick="document.getElementById('leg-${legCount}').remove()">remove</button>` : ''}
+    `;
+    container.appendChild(div);
+  }
+
+  // seed with two legs
+  addLeg('-180');
+  addLeg('-150');
+
+  function checkParlay() {
+    const inputs = document.querySelectorAll('#leg-inputs .leg-input input');
+    const probs = [];
+    inputs.forEach(inp => {
+      const p = americanToImplied(inp.value);
+      if (p !== null) probs.push(p);
+    });
+
+    const box = document.getElementById('parlay-result');
+    if (probs.length < 2) {
+      box.innerHTML = `<p class="plain">Add at least two legs with valid odds to see how they combine.</p>`;
+      return;
+    }
+
+    let rows = '';
+    let running = 1;
+    probs.forEach((p, i) => {
+      running *= p;
+      const isLast = i === probs.length - 1;
+      rows += `
+        <div class="stair-row">
+          <div class="stair-label">${isLast ? 'Combined' : 'Leg ' + (i+1) + ' alone'}</div>
+          <div class="stair-bar-bg"><div class="stair-bar ${isLast ? 'final' : ''}" style="width:${(isLast ? running : p) * 100}%"></div></div>
+          <div class="stair-val">${pct(isLast ? running : p)}</div>
+        </div>
+      `;
+    });
+
+    box.innerHTML = `
+      <div class="staircase">${rows}</div>
+      <p class="plain">
+        Each leg on its own looks like a reasonably safe bet. But to win the parlay, <strong>every single leg</strong> has to hit —
+        so the probabilities multiply together. Your combined chance of winning this parlay is about
+        <strong>${pct(running)}</strong>, even though the individual legs felt much safer than that.
+      </p>
+      <div class="callout">
+        This is exactly why parlays pay out more: the sportsbook knows the real odds of all legs hitting are much lower than they feel.
+      </div>
+    `;
+  }
+
+  // ---------- Tab 4: Practice betting ----------
+  const STARTING_BALANCE = 500;
+  let practiceState = {
+    balance: STARTING_BALANCE,
+    vigPaid: 0,
+    bets: [] // {matchup, pick, odds, stake, impliedProb, resolved, won}
+  };
+
+  // A small set of sample games with fixed odds, standing in for a live
+  // Odds API pull. Each game "resolves" after a short delay so users can
+  // see outcomes without waiting for a real game to finish.
+  const SAMPLE_GAMES = [
+    { id: 'g1', home: 'Riverdale Hawks', away: 'Union City FC', homeOdds: -160, awayOdds: +140, homeWinProb: 0.64 },
+    { id: 'g2', home: 'Northside Wolves', away: 'Bay Harbor', homeOdds: +170, awayOdds: -200, homeWinProb: 0.34 },
+    { id: 'g3', home: 'Lakeshore United', away: 'Prairie Point', homeOdds: -115, awayOdds: -105, homeWinProb: 0.53 },
+  ];
+
+  function renderPracticeGames() {
+    const container = document.getElementById('practice-games');
+    container.innerHTML = '';
+    SAMPLE_GAMES.forEach(g => {
+      const alreadyBet = practiceState.bets.some(b => b.gameId === g.id);
+      const div = document.createElement('div');
+      div.className = 'practice-game';
+      div.innerHTML = `
+        <div class="matchup">${g.away} @ ${g.home}</div>
+        <div class="practice-side">
+          <span>${g.home} <span class="odds-tag">${g.homeOdds > 0 ? '+' : ''}${g.homeOdds}</span></span>
+          <button class="stake-btn" ${alreadyBet ? 'disabled' : ''} onclick="placePracticeBet('${g.id}', 'home', 10)">${alreadyBet ? 'Bet placed' : 'Bet $10'}</button>
+        </div>
+        <div class="practice-side">
+          <span>${g.away} <span class="odds-tag">${g.awayOdds > 0 ? '+' : ''}${g.awayOdds}</span></span>
+          <button class="stake-btn" ${alreadyBet ? 'disabled' : ''} onclick="placePracticeBet('${g.id}', 'away', 10)">${alreadyBet ? 'Bet placed' : 'Bet $10'}</button>
+        </div>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  function placePracticeBet(gameId, side, stake) {
+    const game = SAMPLE_GAMES.find(g => g.id === gameId);
+    const odds = side === 'home' ? game.homeOdds : game.awayOdds;
+    const impliedProb = americanToImplied(odds);
+    const matchup = side === 'home' ? game.home : game.away;
+
+    practiceState.balance -= stake;
+    practiceState.bets.push({
+      gameId, matchup, odds, stake, impliedProb,
+      resolved: false, won: null
+    });
+
+    renderPracticeGames();
+    updateBankrollDisplay();
+    renderBetHistory();
+
+    // Resolve after a short delay, weighted by the "true" win probability
+    // of the side actually chosen, so outcomes are realistic but random.
+    setTimeout(() => resolvePracticeBet(gameId, game), 2200);
+  }
+
+  function resolvePracticeBet(gameId, game) {
+    const bet = practiceState.bets.find(b => b.gameId === gameId && !b.resolved);
+    if (!bet) return;
+
+    const homeWon = Math.random() < game.homeWinProb;
+    const betOnHome = bet.matchup === game.home;
+    const won = (betOnHome && homeWon) || (!betOnHome && !homeWon);
+
+    bet.resolved = true;
+    bet.won = won;
+
+    if (won) {
+      const payout = bet.odds > 0
+        ? bet.stake * (bet.odds / 100)
+        : bet.stake * (100 / -bet.odds);
+      practiceState.balance += bet.stake + payout;
+    }
+    // Track the "vig cost" of this bet: the gap between the implied
+    // probability of the side taken and a fair 50/50 baseline, applied
+    // to the stake, as a rough teaching proxy for house edge paid.
+    const fairStake = bet.stake / (bet.impliedProb * 2);
+    practiceState.vigPaid += Math.max(bet.stake - fairStake, 0);
+
+    updateBankrollDisplay();
+    renderBetHistory();
+  }
+
+  function updateBankrollDisplay() {
+    document.getElementById('balance-display').textContent = '$' + practiceState.balance.toFixed(2);
+    document.getElementById('vig-paid-display').textContent = '$' + practiceState.vigPaid.toFixed(2);
+
+    const resolved = practiceState.bets.filter(b => b.resolved);
+    const wins = resolved.filter(b => b.won).length;
+    const winRateEl = document.getElementById('winrate-display');
+    winRateEl.textContent = resolved.length ? `${wins}/${resolved.length} (${((wins/resolved.length)*100).toFixed(0)}%)` : '—';
+
+    const balEl = document.getElementById('balance-display');
+    balEl.className = 'value ' + (practiceState.balance > STARTING_BALANCE ? 'pos' : practiceState.balance < STARTING_BALANCE ? 'neg' : '');
+  }
+
+  function renderBetHistory() {
+    const box = document.getElementById('bet-history');
+    if (practiceState.bets.length === 0) { box.innerHTML = ''; return; }
+
+    const rows = [...practiceState.bets].reverse().map(b => {
+      const status = !b.resolved
+        ? `<span class="pending">pending…</span>`
+        : b.won ? `<span class="win">won</span>` : `<span class="lose">lost</span>`;
+      return `<div class="bet-row"><span>$${b.stake} on ${b.matchup} (${b.odds > 0 ? '+' : ''}${b.odds})</span>${status}</div>`;
+    }).join('');
+
+    box.innerHTML = `<div class="callout" style="margin-top:6px;">${rows}</div>`;
+  }
+
+  function resetPractice() {
+    practiceState = { balance: STARTING_BALANCE, vigPaid: 0, bets: [] };
+    renderPracticeGames();
+    updateBankrollDisplay();
+    renderBetHistory();
+  }
+
+  renderPracticeGames();
+  updateBankrollDisplay();
+
+  // ---------- Tab 5: Historical patterns ----------
+  // Computed offline from Kaggle's "NFL scores and betting data" dataset
+  // (spreadspoke_scores.csv), 14,171 games with valid spreads, 1966-2025.
+  const NFL_PATTERNS = {
+    "overall": {
+      "total_games_analyzed": 14171,
+      "seasons_covered": "1966\u20132025",
+      "favorite_win_rate_overall": 66.8,
+      "favorite_cover_rate_overall": 47.3,
+      "push_rate": 2.7
+    },
+    "by_spread_size": [
+      { "bucket": "Pick'em (0.5\u20133)", "games": 4562, "favorite_win_rate": 55.5, "favorite_cover_rate": 47.0 },
+      { "bucket": "Small favorite (3.5\u20136.5)", "games": 4686, "favorite_win_rate": 65.6, "favorite_cover_rate": 47.7 },
+      { "bucket": "Moderate favorite (7\u20139.5)", "games": 2707, "favorite_win_rate": 75.1, "favorite_cover_rate": 48.1 },
+      { "bucket": "Large favorite (10\u201313.5)", "games": 1580, "favorite_win_rate": 80.6, "favorite_cover_rate": 47.0 },
+      { "bucket": "Heavy favorite (14+)", "games": 636, "favorite_win_rate": 87.1, "favorite_cover_rate": 44.2 }
+    ],
+    "by_home_away": {
+      "home_favorite": { "games": 9307, "win_rate": 68.3, "cover_rate": 47.7 },
+      "away_favorite": { "games": 4864, "win_rate": 63.9, "cover_rate": 46.6 }
+    },
+    "by_season_type": {
+      "regular_season": { "games": 13575, "favorite_win_rate": 66.8, "favorite_cover_rate": 47.2 },
+      "playoffs": { "games": 596, "favorite_win_rate": 66.8, "favorite_cover_rate": 49.8 }
+    }
+  };
+
+  function histBarRow(label, winPct, coverPct, n) {
+    return `
+      <div class="hist-row">
+        <div class="hist-row-label">${label}</div>
+        <div class="hist-bars">
+          <div class="hist-bar-line">
+            <div class="hist-bar-bg"><div class="hist-bar-fill win" style="width:${winPct}%"></div></div>
+            <div class="hist-bar-val">${winPct}%</div>
+          </div>
+          <div class="hist-bar-line">
+            <div class="hist-bar-bg"><div class="hist-bar-fill cover" style="width:${coverPct}%"></div></div>
+            <div class="hist-bar-val">${coverPct}%</div>
+          </div>
+        </div>
+        <div class="hist-n">n=${n.toLocaleString()}</div>
+      </div>
+    `;
+  }
+
+  function renderHistorical() {
+    const d = NFL_PATTERNS;
+
+    document.getElementById('hist-source').textContent =
+      `Source: ${d.overall.total_games_analyzed.toLocaleString()} NFL games with a posted spread, ${d.overall.seasons_covered}`;
+
+    document.getElementById('hist-summary').innerHTML = `
+      <div class="hist-summary-stat">
+        <div class="label">Favorites won outright</div>
+        <div class="value">${d.overall.favorite_win_rate_overall}%</div>
+      </div>
+      <div class="hist-summary-stat">
+        <div class="label">Favorites covered the spread</div>
+        <div class="value">${d.overall.favorite_cover_rate_overall}%</div>
+      </div>
+      <div class="hist-summary-stat">
+        <div class="label">Games pushed (exact tie)</div>
+        <div class="value">${d.overall.push_rate}%</div>
+      </div>
+    `;
+
+    document.getElementById('hist-by-spread').innerHTML = d.by_spread_size.map(b =>
+      histBarRow(b.bucket, b.favorite_win_rate, b.favorite_cover_rate, b.games)
+    ).join('');
+
+    document.getElementById('hist-by-location').innerHTML =
+      histBarRow('Home favorite', d.by_home_away.home_favorite.win_rate, d.by_home_away.home_favorite.cover_rate, d.by_home_away.home_favorite.games) +
+      histBarRow('Away favorite', d.by_home_away.away_favorite.win_rate, d.by_home_away.away_favorite.cover_rate, d.by_home_away.away_favorite.games);
+
+    document.getElementById('hist-by-season').innerHTML =
+      histBarRow('Regular season', d.by_season_type.regular_season.favorite_win_rate, d.by_season_type.regular_season.favorite_cover_rate, d.by_season_type.regular_season.games) +
+      histBarRow('Playoffs', d.by_season_type.playoffs.favorite_win_rate, d.by_season_type.playoffs.favorite_cover_rate, d.by_season_type.playoffs.games);
+  }
+
+  renderHistorical();
+
+  // run once on load
+  translateOdds();
+</script>
+
+</body>
+</html>
