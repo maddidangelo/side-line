@@ -669,15 +669,21 @@
     let running = 1;
     probs.forEach((p, i) => {
       running *= p;
-      const isLast = i === probs.length - 1;
       rows += `
         <div class="stair-row">
-          <div class="stair-label">${isLast ? 'Combined' : 'Leg ' + (i+1) + ' alone'}</div>
-          <div class="stair-bar-bg"><div class="stair-bar ${isLast ? 'final' : ''}" style="width:${(isLast ? running : p) * 100}%"></div></div>
-          <div class="stair-val">${pct(isLast ? running : p)}</div>
+          <div class="stair-label">Leg ${i + 1} alone</div>
+          <div class="stair-bar-bg"><div class="stair-bar" style="width:${p * 100}%"></div></div>
+          <div class="stair-val">${pct(p)}</div>
         </div>
       `;
     });
+    rows += `
+      <div class="stair-row">
+        <div class="stair-label">Combined</div>
+        <div class="stair-bar-bg"><div class="stair-bar final" style="width:${running * 100}%"></div></div>
+        <div class="stair-val">${pct(running)}</div>
+      </div>
+    `;
 
     box.innerHTML = `
       <div class="staircase">${rows}</div>
