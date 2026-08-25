@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sideline — Understand the Bet Before You Make It</title>
+<title>Side-Line — Understand the Bet Before You Make It</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -333,8 +333,73 @@
     margin-top: 16px;
   }
 
+  /* Historical patterns */
+  .source-note {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--mist);
+    margin-bottom: 20px;
+  }
+
+  .hist-summary {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .hist-summary-stat {
+    flex: 1;
+    min-width: 130px;
+    background: var(--canvas);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 14px 16px;
+  }
+  .hist-summary-stat .label { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--mist); margin-bottom: 4px; }
+  .hist-summary-stat .value { font-family: 'Fraunces', serif; font-size: 26px; color: var(--pine-dark); }
+
+  .hist-group-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--pine);
+    margin: 22px 0 12px;
+  }
+
+  .hist-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .hist-row-label { width: 190px; font-size: 13px; color: var(--ink); flex-shrink: 0; }
+  .hist-bars { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+  .hist-bar-line { display: flex; align-items: center; gap: 8px; }
+  .hist-bar-bg { flex: 1; background: var(--line); border-radius: 3px; height: 16px; overflow: hidden; }
+  .hist-bar-fill { height: 100%; border-radius: 3px; }
+  .hist-bar-fill.win { background: var(--pine); }
+  .hist-bar-fill.cover { background: var(--ochre); }
+  .hist-bar-val { width: 46px; font-family: 'Space Mono', monospace; font-size: 12px; text-align: right; color: var(--pine-dark); flex-shrink: 0; }
+  .hist-n { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--mist); width: 70px; flex-shrink: 0; }
+
+  .hist-legend {
+    display: flex;
+    gap: 18px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--mist);
+    margin-bottom: 4px;
+  }
+  .hist-legend span { display: flex; align-items: center; gap: 6px; }
+  .hist-legend .dot { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
+  .dot.win { background: var(--pine); }
+  .dot.cover { background: var(--ochre); }
+
   @media (max-width: 480px) {
     .stair-label { width: 90px; font-size: 11px; }
+    .hist-row { flex-direction: column; align-items: flex-start; }
+    .hist-row-label { width: auto; }
   }
 </style>
 </head>
@@ -343,7 +408,7 @@
 
   <header>
     <div class="eyebrow">A plain-language guide to sports betting math</div>
-    <h1>Sideline</h1>
+    <h1>Side-Line</h1>
     <p class="sub">Odds are written to sound like tips. They're actually just math — and once you can read it, nobody can talk you into a bad number. Built for people picking this up for the first time.</p>
   </header>
 
@@ -352,6 +417,7 @@
     <button class="tab-btn" data-tab="vig">02 — Find the vig</button>
     <button class="tab-btn" data-tab="parlay">03 — Parlay reality check</button>
     <button class="tab-btn" data-tab="practice">04 — Practice betting</button>
+    <button class="tab-btn" data-tab="history">05 — Historical patterns</button>
   </nav>
 
   <!-- TAB 1: TRANSLATOR -->
@@ -437,6 +503,35 @@
       <div class="bet-history" id="bet-history"></div>
 
       <button class="reset-link" onclick="resetPractice()">Reset practice account</button>
+    </div>
+  </section>
+
+  <!-- TAB 5: HISTORICAL PATTERNS -->
+  <section class="panel" id="history">
+    <div class="card">
+      <h2>What actually happened, historically</h2>
+      <p class="desc">Real NFL spreads and outcomes, 1966–2025. This is a record of the past — not a prediction of what happens in your next bet. Favorites winning more often as the spread grows doesn't mean betting on them pays off; watch what happens to the <em>cover</em> rate instead.</p>
+      <div class="source-note" id="hist-source"></div>
+
+      <div class="hist-summary" id="hist-summary"></div>
+
+      <div class="hist-legend">
+        <span><span class="dot win"></span> Won outright</span>
+        <span><span class="dot cover"></span> Covered the spread</span>
+      </div>
+
+      <div class="hist-group-label">By spread size</div>
+      <div id="hist-by-spread"></div>
+
+      <div class="hist-group-label">Home vs. away favorites</div>
+      <div id="hist-by-location"></div>
+
+      <div class="hist-group-label">Regular season vs. playoffs</div>
+      <div id="hist-by-season"></div>
+
+      <div class="callout">
+        Notice that the <strong>win rate</strong> climbs steadily as favorites get bigger, but the <strong>cover rate</strong> barely moves — it hovers right around 47–48% almost everywhere. That's the sportsbook doing its job: the bigger the favorite, the bigger the spread, specifically so that covering it stays close to a coin flip either way.
+      </div>
     </div>
   </section>
 
@@ -720,6 +815,89 @@
 
   renderPracticeGames();
   updateBankrollDisplay();
+
+  // ---------- Tab 5: Historical patterns ----------
+  // Computed offline from Kaggle's "NFL scores and betting data" dataset
+  // (spreadspoke_scores.csv), 14,171 games with valid spreads, 1966-2025.
+  const NFL_PATTERNS = {
+    "overall": {
+      "total_games_analyzed": 14171,
+      "seasons_covered": "1966\u20132025",
+      "favorite_win_rate_overall": 66.8,
+      "favorite_cover_rate_overall": 47.3,
+      "push_rate": 2.7
+    },
+    "by_spread_size": [
+      { "bucket": "Pick'em (0.5\u20133)", "games": 4562, "favorite_win_rate": 55.5, "favorite_cover_rate": 47.0 },
+      { "bucket": "Small favorite (3.5\u20136.5)", "games": 4686, "favorite_win_rate": 65.6, "favorite_cover_rate": 47.7 },
+      { "bucket": "Moderate favorite (7\u20139.5)", "games": 2707, "favorite_win_rate": 75.1, "favorite_cover_rate": 48.1 },
+      { "bucket": "Large favorite (10\u201313.5)", "games": 1580, "favorite_win_rate": 80.6, "favorite_cover_rate": 47.0 },
+      { "bucket": "Heavy favorite (14+)", "games": 636, "favorite_win_rate": 87.1, "favorite_cover_rate": 44.2 }
+    ],
+    "by_home_away": {
+      "home_favorite": { "games": 9307, "win_rate": 68.3, "cover_rate": 47.7 },
+      "away_favorite": { "games": 4864, "win_rate": 63.9, "cover_rate": 46.6 }
+    },
+    "by_season_type": {
+      "regular_season": { "games": 13575, "favorite_win_rate": 66.8, "favorite_cover_rate": 47.2 },
+      "playoffs": { "games": 596, "favorite_win_rate": 66.8, "favorite_cover_rate": 49.8 }
+    }
+  };
+
+  function histBarRow(label, winPct, coverPct, n) {
+    return `
+      <div class="hist-row">
+        <div class="hist-row-label">${label}</div>
+        <div class="hist-bars">
+          <div class="hist-bar-line">
+            <div class="hist-bar-bg"><div class="hist-bar-fill win" style="width:${winPct}%"></div></div>
+            <div class="hist-bar-val">${winPct}%</div>
+          </div>
+          <div class="hist-bar-line">
+            <div class="hist-bar-bg"><div class="hist-bar-fill cover" style="width:${coverPct}%"></div></div>
+            <div class="hist-bar-val">${coverPct}%</div>
+          </div>
+        </div>
+        <div class="hist-n">n=${n.toLocaleString()}</div>
+      </div>
+    `;
+  }
+
+  function renderHistorical() {
+    const d = NFL_PATTERNS;
+
+    document.getElementById('hist-source').textContent =
+      `Source: ${d.overall.total_games_analyzed.toLocaleString()} NFL games with a posted spread, ${d.overall.seasons_covered}`;
+
+    document.getElementById('hist-summary').innerHTML = `
+      <div class="hist-summary-stat">
+        <div class="label">Favorites won outright</div>
+        <div class="value">${d.overall.favorite_win_rate_overall}%</div>
+      </div>
+      <div class="hist-summary-stat">
+        <div class="label">Favorites covered the spread</div>
+        <div class="value">${d.overall.favorite_cover_rate_overall}%</div>
+      </div>
+      <div class="hist-summary-stat">
+        <div class="label">Games pushed (exact tie)</div>
+        <div class="value">${d.overall.push_rate}%</div>
+      </div>
+    `;
+
+    document.getElementById('hist-by-spread').innerHTML = d.by_spread_size.map(b =>
+      histBarRow(b.bucket, b.favorite_win_rate, b.favorite_cover_rate, b.games)
+    ).join('');
+
+    document.getElementById('hist-by-location').innerHTML =
+      histBarRow('Home favorite', d.by_home_away.home_favorite.win_rate, d.by_home_away.home_favorite.cover_rate, d.by_home_away.home_favorite.games) +
+      histBarRow('Away favorite', d.by_home_away.away_favorite.win_rate, d.by_home_away.away_favorite.cover_rate, d.by_home_away.away_favorite.games);
+
+    document.getElementById('hist-by-season').innerHTML =
+      histBarRow('Regular season', d.by_season_type.regular_season.favorite_win_rate, d.by_season_type.regular_season.favorite_cover_rate, d.by_season_type.regular_season.games) +
+      histBarRow('Playoffs', d.by_season_type.playoffs.favorite_win_rate, d.by_season_type.playoffs.favorite_cover_rate, d.by_season_type.playoffs.games);
+  }
+
+  renderHistorical();
 
   // run once on load
   translateOdds();
